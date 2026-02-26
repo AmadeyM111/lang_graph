@@ -95,3 +95,93 @@ result = app.invoke(
 
 print(result["message"])
 print(f"Date when allowed to drive: {result['today']}")
+
+def check_age(state: UserState) -> str:
+    """ conditional function """
+    return "совершеннолетний" if state["age"] >= 18 else "не_совершеннолетний"
+
+def generate_succes_message(state: UserState) -> dict:
+    """Генерирует сообщение для совершеннолетних"""
+    return {message: f"Вам уже {state['age']} лет и вы можете водить!"}
+
+def generate_failure_message(state: UserState) -> dict:
+    """Генерирует сообщение для несовершеннолетних"""
+    return {"message": f"Вам еще только {state['age']} лет и вы не можете водить."}
+
+# Create the fiction node
+
+graph = StateGraph(UserState)
+
+# the fiction node - just passes the state it on 
+graph.add_node("fake_node", lambda state: state)
+
+# the main processing nodes 
+graph.add_node("generate_success_message", generate_success_message)
+graph.add_node("generate_failure_message", generate_failure_message)
+
+# the logic of graph
+
+graph.add_edge(START, "fake_node")
+
+graph.add_conditianal_edges(
+    "fake_node",
+    check_age,
+    {
+        "совершеннолетний": "generate_success_message",
+        "не_совершеннолетний": "generate_failure_message"
+    }
+)
+
+graph.add_edge("generate_succces_message", END)
+graph.add_edge("generate_failure_message", END)
+
+app = graph.compile()
+
+result_minor = app.invoke({"age": 17})
+print("Результат для 17 лет:", result_minor)
+
+result_adult = app.invoke({"age": 25})
+print("Результат для 25 лет:", result_adult)
+
+# Logging
+def log_and_pass(state: UserState) -> UserState:
+    """Логирует вход в граф и передает состояние дальше"""
+    print(f"Начинаем обработку пользователя с возрастом: {state['age']}")
+    return.add_node("log_node", log_and_pass)
+
+graph.add_node("log_node", log_and_pass)
+
+# Validation
+def validate_and_pass(state: UserState) -> UserState:
+    """Проверка корректности данных и передача состояния дальше"""
+    if state["age"] < 0 or state["age"] > 150:
+        raise ValueError(f"Некорректный возраст: {state['age']}")
+    return state
+
+graph.add_node("validation_node", validate_and_pass)
+
+def initialize_and_pass(state: UserState) -> dict:
+    """Inizialize additional fields and pass the state"""
+    return {
+        "timestamp": datetime.now().isoformat(),
+        "processed": True
+    }
+
+    graph.add_node("init_node", initialize_and_pass)
+
+    def gen_png_graph(app_obj, name_photo: str = "graph.png") -> None:
+        """
+        Генерирует PNG-изображение графа и сохраняет его в файл.
+    
+         Args:
+            app_obj: Скомпилированный объект графа
+            name_photo: Имя файла для сохранения (по умолчанию "graph.png")
+        """
+        with open(name_photo, "wb") as f:
+            f.write(app_obj.get_graph().draw_mermaid_png())
+
+        app = graph.compile()
+
+        gen_png_graph(app, name_photo="graph_example_4.png")
+
+        print("Граф сохранен как graph_example_4.png")
