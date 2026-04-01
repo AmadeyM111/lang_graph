@@ -125,6 +125,7 @@ celerybeat.pid
 
 # Environments
 .env
+!.env.example
 .venv
 env/
 venv/
@@ -171,3 +172,6 @@ cython_debug/
 /.continue/
 /local_dev/.env
 /local_dev/
+
+# History files with potential secrets
+.history/
