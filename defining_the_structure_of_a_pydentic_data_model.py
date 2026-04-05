@@ -11,8 +11,6 @@ from langchain_core.prompts import PromptTemplate
 
 from dotenv import load_dotenv
 
-from structured_output import parser
-
 load_dotenv()
 
 # --- GigaChat конфигурация ---
@@ -64,6 +62,8 @@ llm = GigaChat(
 )
 
 
+# ---------------- Модели данных -----------------
+
 # Модель для классификации сообщения
 class MessageClassification(BaseModel):
     message_type: Literal["review", "question"] = Field(
@@ -74,20 +74,29 @@ class MessageClassification(BaseModel):
         ge=0.0, le=1.0
     )
 
+
 # Модель для анализа отзыва
 class ReviewAnalysis(BaseModel):
     sentiment: Literal["positive", "negative", "neutral"] = Field(
         description="Тональность отзыва"
     )
     confidence: float = Field(
-        description="Уверенность в анализе от 0.0  до 1.0",
+        description="Уверенность в анализе от 0.0 до 1.0",
         ge=0.0, le=1.0
     )
     key_topics: List[str] = Field(
         description="Ключевые темы из отзыва",
-        max_items=5
+        max_length=5
     )
     summary: str = Field(
         description="Краткое резюме в одном предложении",
-        max_length = 150
+        max_length=150
     )
+
+
+# ---------------- Создаём парсер локально -----------------
+
+parser = JsonOutputParser(pydantic_object=ReviewAnalysis)
+
+print("Что генерирует парсер:")
+print(parser.get_format_instructions())
