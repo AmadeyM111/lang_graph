@@ -1,67 +1,19 @@
-import os
-import uuid
-import httpx
-from langchain_gigachat import GigaChat
 from langchain_core.messages import SystemMessage, HumanMessage, AIMessage, BaseMessage
 from langgraph.graph import StateGraph, START, END
 from typing import TypedDict, List
-from dotenv import load_dotenv
 
-load_dotenv()
+from config import init_llm
 
-# --- OpenRouter конфигурация ---
-OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions"
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
-QWEN_MODEL = "qwen/qwen3.6-plus-preview:free"
-
-# --- GigaChat конфигурация ---
-GIGACHAT_AUTH_URL = "https://ngw.devices.sberbank.ru:9443/api/v2/oauth"
-GIGACHAT_API_URL = "https://gigachat.devices.sberbank.ru/api/v1/chat/completions"
-GIGACHAT_SECRET = os.getenv("GIGACHAT_SECRET")
-GIGACHAT_SCOPE = os.getenv("GIGACHAT_SCOPE", "GIGACHAT_API_CORP")
-GIGACHAT_MODEL = os.getenv("GIGACHAT_MODEL", "GigaChat-2-Max-Preview")
-GIGACHAT_VERIFY_SSL = False
-
-
-def get_access_token() -> str:
-    """Получить OAuth-токен GigaChat по client credentials."""
-    response = httpx.post(
-        GIGACHAT_AUTH_URL,
-        headers={
-            "Content-Type": "application/x-www-form-urlencoded",
-            "Accept": "application/json",
-            "RqUID": str(uuid.uuid4()),
-            "Authorization": f"Basic {GIGACHAT_SECRET}",
-        },
-        data={"scope": GIGACHAT_SCOPE},
-        verify=GIGACHAT_VERIFY_SSL,
-        timeout=30,
-    )
-    response.raise_for_status()
-    return response.json()["access_token"]
-
+# ---------------- Определение состояния -----------------
 
 class ChatState(TypedDict):
     messages: List[BaseMessage]
     should_continue: bool
 
 
-# ---------------- Инициализация LLM с токеном -----------------
+# ---------------- Инициализация LLM -----------------
 
-print("Получаем токен GigaChat...")
-try:
-    access_token = get_access_token()
-    print("Токен получен успешно!")
-except Exception as e:
-    print(f"Ошибка получения токена: {e}")
-    print("Проверьте переменную GIGACHAT_SECRET в .env файле")
-    exit(1)
-
-llm = GigaChat(
-    model=GIGACHAT_MODEL,
-    verify_ssl_certs=GIGACHAT_VERIFY_SSL,
-    access_token=access_token
-)
+llm = init_llm()
 
 
 def user_input_node(state: ChatState) -> dict:
@@ -81,14 +33,11 @@ def user_input_node(state: ChatState) -> dict:
 
 def llm_response_node(state: ChatState) -> dict:
     """Узел для генерации ответа ИИ"""
-    # Получаем ответ от LLM, передавая весь контекст
     response = llm.invoke(state["messages"])
     msg_content = response.content
     
-    # Выводим ответ 
     print(f"ИИ: {msg_content}")
 
-    # Добавляем ответ в историю как AIMessage
     new_messages = state["messages"] + [AIMessage(content=msg_content)]
     return {"messages": new_messages}
 
@@ -102,29 +51,25 @@ def should_continue(state: ChatState) -> str:
 
 # --------------- создание и компиляция графа --------------------
 
-# Создаем граф
 graph = StateGraph(ChatState)
 
-# добавляем узлы
 graph.add_node("user_input", user_input_node)
 graph.add_node("llm_response", llm_response_node)
 
-# Создаем ребра 
 graph.add_edge(START, "user_input")
 graph.add_edge("user_input", "llm_response")
 
-# Условное ребро для проверки продолжения
 graph.add_conditional_edges(
     "llm_response",
     should_continue,
     {
-        "continue": "user_input",  # Возвращаем к вводу пользователя
-        "end": END                  # Завершаем диалог
+        "continue": "user_input",
+        "end": END
     }
 )
 
-# Компиляция графа
 app = graph.compile()
+
 
 # -------------- Запуск диалогового агента -------------------------
 
@@ -133,7 +78,6 @@ if __name__ == "__main__":
     print("Для выхода введите: выход, quit, exit, пока или bye")
     print("-" * 50)
 
-    # Начальное состояние с системным сообщением
     initial_state = {
         "messages": [
             SystemMessage(
@@ -144,7 +88,6 @@ if __name__ == "__main__":
     }
 
     try:
-        # Запуск чата
         final_state = app.invoke(initial_state)
 
         print("-" * 50)
