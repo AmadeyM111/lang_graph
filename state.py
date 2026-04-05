@@ -117,7 +117,3 @@ if __name__ == "__main__":
         print("\n\nЧат прерван пользователем (Ctrl+C)")
     except Exception as e:
         print(f"\nОшибка в работе чата: {e}")
-
-
-if __name__ == "__main__":
-    print("Добро пожаловать в чат с ИИ")

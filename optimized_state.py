@@ -1,9 +1,11 @@
+import os
+import uuid
+import httpx
 from langchain_gigachat import GigaChat
 from langchain_core.messages import SystemMessage, HumanMessage, AIMessage, BaseMessage
 from langgraph.graph import StateGraph, START, END
 from typing import TypedDict, List
 from dotenv import load_dotenv
-import os
 
 load_dotenv()
 
@@ -21,6 +23,24 @@ GIGACHAT_MODEL = os.getenv("GIGACHAT_MODEL", "GigaChat-2-Max-Preview")
 GIGACHAT_VERIFY_SSL = False
 
 
+def get_access_token() -> str:
+    """Получить OAuth-токен GigaChat по client credentials."""
+    response = httpx.post(
+        GIGACHAT_AUTH_URL,
+        headers={
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Accept": "application/json",
+            "RqUID": str(uuid.uuid4()),
+            "Authorization": f"Basic {GIGACHAT_SECRET}",
+        },
+        data={"scope": GIGACHAT_SCOPE},
+        verify=GIGACHAT_VERIFY_SSL,
+        timeout=30,
+    )
+    response.raise_for_status()
+    return response.json()["access_token"]
+
+
 # ---------------- Определение состояния -----------------
 
 class ChatState(TypedDict):
@@ -28,11 +48,21 @@ class ChatState(TypedDict):
     should_continue: bool
 
 
-# ---------------- Инициализация LLM -----------------
+# ---------------- Инициализация LLM с токеном -----------------
+
+print("Получаем токен GigaChat...")
+try:
+    access_token = get_access_token()
+    print("Токен получен успешно!")
+except Exception as e:
+    print(f"Ошибка получения токена: {e}")
+    print("Проверьте переменную GIGACHAT_SECRET в .env файле")
+    exit(1)
 
 llm = GigaChat(
     model=GIGACHAT_MODEL,
-    verify_ssl_certs=GIGACHAT_VERIFY_SSL
+    verify_ssl_certs=GIGACHAT_VERIFY_SSL,
+    access_token=access_token
 )
 
 
