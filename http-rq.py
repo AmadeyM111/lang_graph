@@ -1,21 +1,17 @@
-import os
-import ssl
 import uuid
 import aiohttp
 import asyncio
-from dotenv import load_dotenv
 
-load_dotenv()
+from settings import (
+    GIGACHAT_API_URL,
+    GIGACHAT_AUTH_URL,
+    GIGACHAT_MODEL,
+    GIGACHAT_SCOPE,
+    GIGACHAT_SECRET,
+    GIGACHAT_VERIFY_SSL,
+)
 
-GIGACHAT_AUTH_URL = "https://ngw.devices.sberbank.ru:9443/api/v2/oauth"
-GIGACHAT_API_URL = "https://gigachat.devices.sberbank.ru/api/v1/chat/completions"
-GIGACHAT_SECRET = os.getenv("GIGACHAT_SECRET")
-GIGACHAT_SCOPE = os.getenv("GIGACHAT_SCOPE", "GIGACHAT_API_CORP")
-
-# SSL-контекст без верификации (для продакшена — подключить сертификат)
-ssl_context = ssl.create_default_context()
-ssl_context.check_hostname = False
-ssl_context.verify_mode = ssl.CERT_NONE
+SSL_OPTION = None if GIGACHAT_VERIFY_SSL else False
 
 
 async def get_access_token() -> str:
@@ -30,7 +26,7 @@ async def get_access_token() -> str:
                 "Authorization": f"Basic {GIGACHAT_SECRET}",
             },
             data={"scope": GIGACHAT_SCOPE},
-            ssl=ssl_context,
+            ssl=SSL_OPTION,
         ) as response:
             response.raise_for_status()
             result = await response.json()
@@ -51,7 +47,7 @@ async def ask_gigachat_llm(token: str, model_name: str, messages: list) -> dict:
                 "model": model_name,
                 "messages": messages,
             },
-            ssl=ssl_context,
+            ssl=SSL_OPTION,
         ) as response:
             response.raise_for_status()
             return await response.json()
@@ -63,7 +59,7 @@ async def main():
         {"role": "system", "content": "Ты полезный ассистент"},
         {"role": "user", "content": "Привет, расскажи про основные метрики ML в ритейле"},
     ]
-    response = await ask_gigachat_llm(token, "GigaChat-2-Max", messages)
+    response = await ask_gigachat_llm(token, GIGACHAT_MODEL, messages)
     print(response["choices"][0]["message"]["content"])
 
 

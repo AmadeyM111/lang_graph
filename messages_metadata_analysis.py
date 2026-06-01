@@ -1,43 +1,26 @@
-from langchain_gigachat import GigaChat
-from langchain_core.messages import SystemMessage, HumanMessage
+from langchain_core.messages import AIMessage
 
-import os
-import uuid
-import httpx
-import requests
-import json
-from dotenv import load_dotenv
+from llm_factory import init_llm
 
-load_dotenv()
 
-# --- OpenRouter конфигурация ---
-OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions"
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
-QWEN_MODEL = "qwen/qwen3.6-plus-preview:free"
+def show_response_metadata() -> None:
+    """Запрос к модели и печать метаданных ответа."""
+    llm = init_llm()
+    response = llm.invoke("Расскажи о GRPO")
 
-# --- GigaChat конфигурация ---
-GIGACHAT_AUTH_URL = "https://ngw.devices.sberbank.ru:9443/api/v2/oauth"
-GIGACHAT_API_URL = "https://gigachat.devices.sberbank.ru/api/v1/chat/completions"
-GIGACHAT_SECRET = os.getenv("GIGACHAT_SECRET")
-GIGACHAT_SCOPE = os.getenv("GIGACHAT_SCOPE", "GIGACHAT_API_CORP")
-GIGACHAT_MODEL = os.getenv("GIGACHAT_MODEL", "GigaChat-2-Max-Preview")
-GIGACHAT_VERIFY_SSL = False
+    print(f"Содержимое: {response.content[:100]}...")
+    print(f"ID сообщения: {response.id}")
 
-response = llm.invoke("Расскажи о GRPO")
+    # Метаданные о генерации
+    metadata = response.response_metadata
+    print(f"Использовано токенов: {metadata.get('token_usage', {})}")
+    print(f"Модель: {metadata.get('model_name')}")
+    print(f"Причина завершения: {metadata.get('finish_reason')}")
 
-print(f"Содержимое: {response.content[:100]}...")
-print(f"ID сообщения: {response.id}")
-
-# Метаданные о генерации
-metadata = response.response_metadata
-print(f"Использовано токенов: {metadata.get('token_usage', {})}")
-print(f"Модель: {metadata.get('model_name')}")
-print(f"Причина завершения: {metadata.get('finish_reason')}")
-
-# Информация о токенах для оптимизации
-usage = response.usage_metadata
-print(f"Входные токены: {usage.get('input_tokens')}")
-print(f"Исходящие токены: {usage.get('output_tokens')}")
+    # Информация о токенах для оптимизации
+    usage = response.usage_metadata
+    print(f"Входные токены: {usage.get('input_tokens')}")
+    print(f"Исходящие токены: {usage.get('output_tokens')}")
 
 # ---------------- TECNICAL REALIZATION IN LANG GRAPH -----------------------
 
@@ -57,3 +40,7 @@ def response_filter_node(state):
             return {"messages": new_messages}
 
         return state # Возвращаем без изменений
+
+
+if __name__ == "__main__":
+    show_response_metadata()

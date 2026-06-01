@@ -7,7 +7,7 @@ from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import PromptTemplate
 from langgraph.graph import StateGraph, START, END
 
-from config import init_llm
+from llm_factory import init_llm
 
 
 # ---------------- Инициализируем LLM -----------------

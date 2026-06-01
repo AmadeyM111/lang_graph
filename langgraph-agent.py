@@ -146,8 +146,16 @@ print("Результат для 25 лет:", result_adult)
 # Logging
 def log_and_pass(state: UserState) -> UserState:
     """Логирует вход в граф и передает состояние дальше"""
-    print(f"Начинаем обработку пользователя с возрастом: {state['age']}")
-    return.add_node("log_node", log_and_pass)
+    age = state.get("age")
+
+    if age is None:
+        raise ValueError(
+            "State field 'age' is missing. "
+            "Node 'calculate_age' must run before 'long_and_pass'."
+        )
+
+    print(f"Начинаем обработку пользователя с возрастом: {age}")
+    return state
 
 graph.add_node("log_node", log_and_pass)
 

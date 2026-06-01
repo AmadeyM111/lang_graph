@@ -1,44 +1,23 @@
 from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
 
-import os
-import uuid
 import httpx
 import requests
 import json
-from dotenv import load_dotenv
 
-load_dotenv()
-
-# --- OpenRouter конфигурация ---
-OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions"
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
-QWEN_MODEL = "qwen/qwen3.6-plus-preview:free"
-
-# --- GigaChat конфигурация ---
-GIGACHAT_AUTH_URL = "https://ngw.devices.sberbank.ru:9443/api/v2/oauth"
-GIGACHAT_API_URL = "https://gigachat.devices.sberbank.ru/api/v1/chat/completions"
-GIGACHAT_SECRET = os.getenv("GIGACHAT_SECRET")
-GIGACHAT_SCOPE = os.getenv("GIGACHAT_SCOPE", "GIGACHAT_API_CORP")
-GIGACHAT_MODEL = os.getenv("GIGACHAT_MODEL", "GigaChat-2-Max-Preview")
-GIGACHAT_VERIFY_SSL = False
+from llm_factory import get_access_token
+from settings import (
+    GIGACHAT_API_URL,
+    GIGACHAT_MODEL,
+    GIGACHAT_VERIFY_SSL,
+    OPENROUTER_API_KEY,
+    OPENROUTER_API_URL,
+    QWEN_MODEL,
+)
 
 
 def get_gigachat_token() -> str:
     """Получить OAuth-токен GigaChat."""
-    response = httpx.post(
-        GIGACHAT_AUTH_URL,
-        headers={
-            "Content-Type": "application/x-www-form-urlencoded",
-            "Accept": "application/json",
-            "RqUID": str(uuid.uuid4()),
-            "Authorization": f"Basic {GIGACHAT_SECRET}",
-        },
-        data={"scope": GIGACHAT_SCOPE},
-        verify=GIGACHAT_VERIFY_SSL,
-        timeout=30,
-    )
-    response.raise_for_status()
-    return response.json()["access_token"]
+    return get_access_token()
 
 
 def ask_openrouter(messages: list[dict]) -> str:
@@ -93,34 +72,24 @@ def langchain_messages_to_dict(messages: list) -> list[dict]:
     return result
 
 
-# --- Основной сценарий ---
+def run_main_scenario() -> None:
+    """Запустить основной много-модельный сценарий."""
+    messages = [
+        SystemMessage(content="Ты дружелюбный помощник программист. Запоминай информацию о пользователе."),
+        HumanMessage(content="Объясни главное отличие между LangGraph и LangChain."),
+    ]
 
-# Начальные сообщения
-messages = [
-    SystemMessage(content="Ты дружелюбный помощник программист. Запоминай информацию о пользователе."),
-    HumanMessage(content="Объясни главное отличие между LangGraph и LangChain."),
-]
+    api_messages = langchain_messages_to_dict(messages)
+    qwen_response_text = ask_openrouter(api_messages)
+    print(f"Ответ от Qwen:\n{qwen_response_text}\n")
 
-# Конвертируем в формат для API
-api_messages = langchain_messages_to_dict(messages)
+    messages.append(AIMessage(content=qwen_response_text))
+    messages.append(HumanMessage(content="Посмотри на этот ответ и объясни, почему он может быть неполным. Приведи пример из практики."))
 
-# Получаем ответ от Qwen через OpenRouter
-qwen_response_text = ask_openrouter(api_messages)
-print(f"Ответ от Qwen:\n{qwen_response_text}\n")
-
-# Добавляем ответ Qwen в историю как от ассистента
-messages.append(AIMessage(content=qwen_response_text))
-messages.append(HumanMessage(content="Посмотри на этот ответ и объясни, почему он может быть неполным. Приведи пример из практики."))
-
-# Обновляем сообщения для GigaChat
-api_messages = langchain_messages_to_dict(messages)
-
-# Получаем токен GigaChat
-giga_token = get_gigachat_token()
-
-# Получаем ответ от GigaChat, считая что история диалога уже включает ответ Qwen
-giga_response_text = ask_gigachat(api_messages, giga_token)
-print(f"Продолжение от Giga:\n{giga_response_text}")
+    api_messages = langchain_messages_to_dict(messages)
+    giga_token = get_gigachat_token()
+    giga_response_text = ask_gigachat(api_messages, giga_token)
+    print(f"Продолжение от Giga:\n{giga_response_text}")
 
 
 # --- Создание экспертных персон ---
@@ -148,6 +117,8 @@ def improve_response(original_response: AIMessage) -> AIMessage:
 # --- Пример использования эксперта ---
 
 if __name__ == "__main__":
+    run_main_scenario()
+
     # Создаем эксперта по машинному обучению
     ml_expert_context = create_expert_persona("машинное обучение")
     ml_expert_context.append(HumanMessage(content="Объясни мне нейронные сети"))

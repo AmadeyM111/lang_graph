@@ -2,7 +2,7 @@ from langchain_core.messages import SystemMessage, HumanMessage, AIMessage, Base
 from langgraph.graph import StateGraph, START, END
 from typing import TypedDict, List
 
-from config import init_llm
+from llm_factory import init_llm
 
 # ---------------- Определение состояния -----------------
 

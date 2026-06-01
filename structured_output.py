@@ -6,7 +6,7 @@ from langchain_core.messages import SystemMessage, HumanMessage, AIMessage, Base
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import PromptTemplate
 
-from config import init_llm
+from llm_factory import init_llm
 
 
 # ---------------- Определение структуры данных -----------------
