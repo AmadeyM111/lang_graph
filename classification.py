@@ -1,6 +1,14 @@
+from typing import Literal, TypedDict
+
+from pydantic import BaseModel, Field
+from langchain_core.output_parsers import JsonOutputParser
+from langchain_core.prompts import PromptTemplate
+
 class TaskClassification(BaseModel):
     task_type: Literal["code", "dialog", "local"] = Field(
-        description="Тип задачи: code - программирование, dialog - общение, local - российские реалии"     
+        description=(
+            "Тип задачи: code - программирование, "
+            "dialog - общение, local - российские реалии"     
     )
 
     confidence: float = Field(
@@ -9,29 +17,24 @@ class TaskClassification(BaseModel):
     )
 
     reasoning: str = Field(
-        description="Краткое обяснение выбора",
-        max_lenght=100
+        description="Краткое объяснение выбора task_type, максимум 100 символов",
+        max_length=100,
     )
 
-class MuktiModelState(TypedDict):
+class MultiModelState(TypedDict):
     user_question: str
     task_type: str
     code_analysis: str
-    dialog_resonse: str
+    dialog_response: str
     local_context: str
     final_answer: str
     should_continue: bool # продолжать ли работу
 
 
-from asyncio import Task
-from langchain_core.output_parsers import JsonOutputParser
-from langchain_core.prompts import PromptTemplate
-from sklearn.metrics import classification_report
-
 # Настройка классификатора (используюем DeepSeek как быструю модель)
 classification_parser = JsonOutputParser(pydantic_object=TaskClassification)
 classification_prompt = PromptTemplate(
-    template=f"""Определи задачи пользователя:
+    template="""Определи задачи пользователя:
 CODE - вопросы про программироваение, отладку, код, алгоритмы, технологии
 DIALOG - обычные вопросы, просьбы о помощи, обучение, объяснения
 LOCAL - вопросы про Россию, российские законы, локальные особенности, госуслуги
@@ -65,4 +68,16 @@ def classify_task_node(state: MultiModelState) -> dict:
 
     except Exception as e:
         print(f"Ошибка классификации: {e}")
-        return {"task_type": dialog} # fallback к диалогу
+        return {"task_type": "dialog"} # fallback к диалогу
+
+# ------------------ Отказоустойчивость на уровне архитектуры -----------------------
+
+def fallback_node(state: MultiModelState) -> dict:
+    """ Узел-fallback при недоступности основных моделей """
+    try:
+        # Пробуем запасную модель
+        backup_response = backup_model.invoke(state["user_question"])
+        return {"final_answer": backup_response.content}
+    except Exception as e:
+        print(f"Ошибка fallback-модели: {e}")
+        return {"final_answer": "Все модели временно недоступны"}
