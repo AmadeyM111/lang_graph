@@ -1,0 +1,130 @@
+# Migration Report
+
+## Выполненные действия
+
+- created src/langgraph_agents/__init__.py
+- created src/langgraph_agents/core/__init__.py
+- created src/langgraph_agents/graphs/__init__.py
+- created src/langgraph_agents/nodes/__init__.py
+- created src/langgraph_agents/tools/__init__.py
+- created src/langgraph_agents/memory/__init__.py
+- created src/langgraph_agents/agents/__init__.py
+- created src/langgraph_agents/mas/__init__.py
+- created apps/__init__.py
+- created apps/cli/__init__.py
+- created tests/__init__.py
+- created tests/unit/__init__.py
+- created tests/integration/__init__.py
+- created configs/default.yaml
+- created configs/local.example.yaml
+- created evals/README.md
+- created prompts/README.md
+- created tests/fixtures/.gitkeep
+- created scripts/.gitkeep
+- created pyproject.toml
+- moved state.py -> src/langgraph_agents/core/state.py
+- moved llm_factory.py -> src/langgraph_agents/core/llm_factory.py
+- moved work_with_messages.py -> src/langgraph_agents/core/messages.py
+- moved settings.py -> src/langgraph_agents/core/settings.py
+- moved config.py -> src/langgraph_agents/core/config.py
+- moved optimized_state.py -> src/langgraph_agents/core/optimized_state.py
+- moved manage_context_strategy.py -> src/langgraph_agents/memory/context_strategy.py
+- moved assistant_graph.py -> src/langgraph_agents/graphs/assistant_graph.py
+- moved routing.py -> src/langgraph_agents/graphs/routing_graph.py
+- moved multi_model_graph.py -> src/langgraph_agents/graphs/multimodel_graph.py
+- moved classification.py -> src/langgraph_agents/nodes/classification.py
+- moved sentiment_parser_in_one_chain.py -> src/langgraph_agents/nodes/sentiment.py
+- moved nodes/version_config_control.py -> src/langgraph_agents/nodes/version_control.py
+- moved nodes/expert_consensus_node.py -> src/langgraph_agents/nodes/expert_consensus.py
+- moved tools/get_quote.py -> src/langgraph_agents/tools/quotes.py
+- moved tools/binding_tools.py -> src/langgraph_agents/tools/binding_tools.py
+- moved tools/set_of_tools.py -> src/langgraph_agents/tools/set_of_tools.py
+- moved tools/model_prepare.py -> src/langgraph_agents/tools/model_prepare.py
+- moved tools/react_approach.py -> examples/05_react_agent.py
+- moved MAS/tools/orchestrator_state.py -> src/langgraph_agents/mas/state.py
+- moved MAS/tools/file_tools.py -> src/langgraph_agents/tools/files.py
+- moved MAS/tools/web_tools.py -> src/langgraph_agents/tools/web.py
+- moved MAS/tools/db_tools.py -> src/langgraph_agents/tools/database.py
+- moved MAS/nodes/researcher.py -> src/langgraph_agents/agents/researcher.py
+- moved MAS/nodes/editor.py -> src/langgraph_agents/agents/editor.py
+- moved MAS/nodes/data-engineer.py -> src/langgraph_agents/agents/data_engineer.py
+- moved MAS/nodes/orchestrator.py -> src/langgraph_agents/mas/orchestrator.py
+- moved MAS/nodes/main.py -> examples/08_mas_nodes.py
+- moved MAS/main.py -> examples/07_multi_agent_system.py
+- moved main.py -> apps/cli/main.py
+- moved explicit_messages_work.py -> examples/02_messages.py
+- moved structured_output.py -> examples/03_structured_output.py
+- moved langgraph-agent.py -> examples/01_basic_graph.py
+- moved triple_model_mode.py -> examples/06_triple_model_mode.py
+- moved multimodel_dialogs.py -> examples/06_multi_model_dialog.py
+- moved chat-model.py -> examples/chat_model.py
+- moved defining_the_structure_of_a_pydentic_data_model.py -> examples/pydantic_data_model_structure.py
+- moved messages_metadata_analysis.py -> examples/messages_metadata_analysis.py
+- moved fake-ai-message.py -> examples/fake_ai_message.py
+- moved http-rq.py -> examples/http_request.py
+- moved react-pattern/tools/mcp_integration.py -> examples/react_pattern/mcp_integration.py
+- moved react-pattern/tools/main_work_cicle.py -> examples/react_pattern/main_work_cycle.py
+- moved react-pattern/tools/lifecircle_manger.py -> examples/react_pattern/lifecycle_manager.py
+- moved react-pattern/tools/create_agent_with_memory.py -> examples/react_pattern/create_agent_with_memory.py
+- moved react-pattern/tools/api_service.py -> examples/react_pattern/api_service.py
+- moved main_concepts/README.md -> docs/main-concepts.md
+- deleted exact duplicate main_concepts/.env.example
+- deleted exact duplicate main_concepts/state.py
+- deleted exact duplicate main_concepts/llm_factory.py
+- deleted exact duplicate main_concepts/work_with_messages.py
+- deleted exact duplicate main_concepts/settings.py
+- deleted exact duplicate main_concepts/config.py
+- deleted exact duplicate main_concepts/optimized_state.py
+- deleted exact duplicate main_concepts/manage_context_strategy.py
+- deleted exact duplicate main_concepts/assistant_graph.py
+- deleted exact duplicate main_concepts/routing.py
+- deleted exact duplicate main_concepts/multi_model_graph.py
+- deleted exact duplicate main_concepts/classification.py
+- deleted exact duplicate main_concepts/sentiment_parser_in_one_chain.py
+- deleted exact duplicate main_concepts/nodes/version_config_control.py
+- deleted exact duplicate main_concepts/nodes/expert_consensus_node.py
+- deleted exact duplicate main_concepts/tools/get_quote.py
+- deleted exact duplicate main_concepts/tools/binding_tools.py
+- deleted exact duplicate main_concepts/tools/set_of_tools.py
+- deleted exact duplicate main_concepts/tools/model_prepare.py
+- deleted exact duplicate main_concepts/tools/react_approach.py
+- deleted exact duplicate main_concepts/main.py
+- deleted exact duplicate main_concepts/explicit_messages_work.py
+- deleted exact duplicate main_concepts/structured_output.py
+- deleted exact duplicate main_concepts/langgraph-agent.py
+- deleted exact duplicate main_concepts/triple_model_mode.py
+- deleted exact duplicate main_concepts/multimodel_dialogs.py
+- deleted exact duplicate main_concepts/chat-model.py
+- deleted exact duplicate main_concepts/defining_the_structure_of_a_pydentic_data_model.py
+- deleted exact duplicate main_concepts/messages_metadata_analysis.py
+- deleted exact duplicate main_concepts/fake-ai-message.py
+- deleted exact duplicate main_concepts/http-rq.py
+- moved main_concepts/.history/chat_model_20260303220900.py -> examples/_main_concepts_legacy/.history/chat_model_20260303220900.py
+- moved main_concepts/.history/chat_model_20260303221637.py -> examples/_main_concepts_legacy/.history/chat_model_20260303221637.py
+- moved main_concepts/.history/chat_model_20260303221759.py -> examples/_main_concepts_legacy/.history/chat_model_20260303221759.py
+- moved main_concepts/.history/chat_model_20260303222023.py -> examples/_main_concepts_legacy/.history/chat_model_20260303222023.py
+- moved main_concepts/.history/chat_model_20260303222024.py -> examples/_main_concepts_legacy/.history/chat_model_20260303222024.py
+- moved main_concepts/.history/chat_model_20260303222248.py -> examples/_main_concepts_legacy/.history/chat_model_20260303222248.py
+- moved main_concepts/.history/chat_model_20260303222309.py -> examples/_main_concepts_legacy/.history/chat_model_20260303222309.py
+- moved main_concepts/.history/chat_model_20260303222310.py -> examples/_main_concepts_legacy/.history/chat_model_20260303222310.py
+- moved main_concepts/.history/chat_model_20260303222311.py -> examples/_main_concepts_legacy/.history/chat_model_20260303222311.py
+- moved main_concepts/.history/chat_model_20260303222312.py -> examples/_main_concepts_legacy/.history/chat_model_20260303222312.py
+- moved main_concepts/.history/chat_model_20260303222315.py -> examples/_main_concepts_legacy/.history/chat_model_20260303222315.py
+- moved main_concepts/.history/chat_model_20260303222441.py -> examples/_main_concepts_legacy/.history/chat_model_20260303222441.py
+- moved main_concepts/.history/chat_model_20260303222442.py -> examples/_main_concepts_legacy/.history/chat_model_20260303222442.py
+- moved main_concepts/.history/chat_model_20260303222609.py -> examples/_main_concepts_legacy/.history/chat_model_20260303222609.py
+- moved main_concepts/.history/chat_model_20260303222610.py -> examples/_main_concepts_legacy/.history/chat_model_20260303222610.py
+- moved main_concepts/.history/chat_model_20260303222611.py -> examples/_main_concepts_legacy/.history/chat_model_20260303222611.py
+- moved main_concepts/.history/chat_model_20260303222612.py -> examples/_main_concepts_legacy/.history/chat_model_20260303222612.py
+- moved main_concepts/.history/chat_model_20260303223331.py -> examples/_main_concepts_legacy/.history/chat_model_20260303223331.py
+- moved main_concepts/.history/chat_model_20260303223346.py -> examples/_main_concepts_legacy/.history/chat_model_20260303223346.py
+- moved main_concepts/.history/chat_model_20260303223422.py -> examples/_main_concepts_legacy/.history/chat_model_20260303223422.py
+- moved main_concepts/.history/chat_model_20260303223423.py -> examples/_main_concepts_legacy/.history/chat_model_20260303223423.py
+
+## Проверка после миграции
+
+```bash
+python -m compileall src examples apps
+pytest
+git status --short
+```

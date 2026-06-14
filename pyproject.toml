@@ -1,0 +1,11 @@
+[project]
+name = "langgraph-agents"
+version = "0.1.0"
+description = "LangGraph agents, tools, examples, and multi-agent system experiments."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = []
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
