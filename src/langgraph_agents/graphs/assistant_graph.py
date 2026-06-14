@@ -5,8 +5,8 @@ def code_analyze_node(state: MultiModelState) -> dict:
     try:
         print("DeepSeek: Анализирую код...")
 
-        code messages = [
-            SystemMessage(content="""Ты эксперт-программист из META. Анализируй код, находи ошибки, предлагай оптимизации. Отвечай технично и точно.""")
+        code_messages = [
+            SystemMessage(content="""Ты эксперт-программист из META. Анализируй код, находи ошибки, предлагай оптимизации. Отвечай технично и точно."""),
             HumanMessage(content=question)
         ]
 
@@ -23,7 +23,7 @@ def code_analyze_node(state: MultiModelState) -> dict:
 
 # --------------- Узел генерации ответа для диалога ---------------
 
-def dialog_response_node(state: MultiModelStage)-> dict:
+def dialog_response_node(state: MultiModelState) -> dict:
     """Узел генерации ответа для диалога - используем LLaMA"""
     question = state["user_question"]
 
@@ -31,14 +31,14 @@ def dialog_response_node(state: MultiModelStage)-> dict:
         print("LLaMA: Генерирую ответ для диалога...")
 
         dialog_messages = [
-            SystemMessage(content="""Ты дружелюбный помощник. Отвечай развернуто, помогай, объясняй.""")
+            SystemMessage(content="""Ты дружелюбный помощник. Отвечай развернуто, помогай, объясняй."""),
             HumanMessage(content=question)
         ]
         
         response = amvera_model.invoke(dialog_messages)
         answer = response.content
 
-        print(f"LLaMA: Ответ для диалога: {dialog_answer[:100]}...")
+        print(f"LLaMA: Ответ для диалога: {answer[:100]}...")
 
         return {"dialog_answer": answer}
 
@@ -48,14 +48,14 @@ def dialog_response_node(state: MultiModelStage)-> dict:
 
 # --------------- Узел локального контекста ---------------
 
-def local_context_node(state: MultiModelStage)-> dict:
+def local_context_node(state: MultiModelState) -> dict:
     """Узел локального контекста - эуспертиза GigaChat"""
     question = state["user_question"]
 
     try:
         print("GigaChat: анализирует локальный контекст...")
 
-        dialog_messages = [
+        local_messages = [
             SystemMessage(content="""Ты эксперт по России: законы, традиции, особенности, госуслуги, местная специфика. Давай точную информацию о российских реалиях."""),
             HumanMessage(content=question)
         ]
@@ -69,7 +69,7 @@ def local_context_node(state: MultiModelStage)-> dict:
 
     except Exception as e:
         print(f"Ошибка gigachat: {e}")
-        return {"dialog_context": "Ошибка анализа локального контекста."}
+        return {"local_context": "Ошибка анализа локального контекста."}
 
 # ------------- Узел получения пользовательского ввода ------------------------
 

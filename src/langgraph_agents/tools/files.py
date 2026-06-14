@@ -16,7 +16,7 @@ async def fs_write_text(path: str, content: str) -> str:
 async def csv_write_rows(path: str, rows: List[List[str]]) -> str:
     """Создает/перезаписывает CSV с переданными строками."""
     full = (WORKDIR / Path(path)).resolve()
-    if not str(full).startswith(str.(WORKDIR)):
+    if not str(full).startswith(str(WORKDIR)):
         return "ERROR: path outside sandbox"
     with open(full, "w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)

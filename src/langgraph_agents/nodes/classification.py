@@ -8,7 +8,8 @@ class TaskClassification(BaseModel):
     task_type: Literal["code", "dialog", "local"] = Field(
         description=(
             "Тип задачи: code - программирование, "
-            "dialog - общение, local - российские реалии"     
+            "dialog - общение, local - российские реалии"
+        )
     )
 
     confidence: float = Field(
