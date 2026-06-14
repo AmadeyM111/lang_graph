@@ -50,7 +50,12 @@ Congrats, Алексей Яковенко! You are already 18 years old and you 
 Date when allowed to drive: 2026-02-19
 ```
 
+## Local install MCP (stdio)
+npm install -g @modelcontextprotocol/server-filesystem
+
+
 ## Notes
 
 - `recursion_limit` is set to `2000` — enough to cover ~3 graph steps per simulated day over a multi-year span.
 - Date arithmetic correctly accounts for whether the birthday has occurred yet in the current year.
+

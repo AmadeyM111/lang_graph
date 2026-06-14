@@ -1,6 +1,6 @@
 from langchain_mcp_adapters.client import MultiServerMCPClient
 
-async def ger_all_tools():
+async def get_all_tools():
     """Получение всех инструментов: ваших + MCP"""
     #  Настройка МСР клиента
     mcp_client = MultiServerMCPClient(
@@ -18,3 +18,13 @@ async def ger_all_tools():
 
     # Объединяем ваши инструменты с МСР инструментами
     return [get_quote] + mcp_tools
+
+    
+    # получаем все инструменты (свои + МСР)
+    tools = asyncio.run(get_all_tools())
+    llm = ChatDeepSeek(model="deepseek-chat").bind_tools(tools)
+
+    async def model_call(state: AgentState) -> AgentState:
+        system_prompt = SystemMessage(
+            content="В твоем распоряжении есть инструменты для работы с файловой системой и инструмент для получения юридических цитат философов на русском языке."
+        )
